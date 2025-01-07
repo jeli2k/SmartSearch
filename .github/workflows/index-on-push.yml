@@ -37,10 +37,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Wait for Elasticsearch to be ready
+    - name: Download NLTK Resources
       run: |
-        until curl -s http://localhost:9200; do echo Waiting for Elasticsearch...; sleep 5; done
+        mkdir -p /home/runner/nltk_data
+        python -c "import nltk; nltk.data.path.append('/home/runner/nltk_data'); nltk.download('stopwords', download_dir='/home/runner/nltk_data')"
 
     - name: Run indexing
+      env:
+        NLTK_DATA: /home/runner/nltk_data
       run: |
         python codebase_search.py --index ./sourcecode
