@@ -1,0 +1,17 @@
+# Haystack for Dense Passage Retrieval and Extractive QA
+farm-haystack[colab,ocr,preprocessing,file-conversion,pdf,inference]
+
+# Dependencies for Haystack
+click
+
+# Elasticsearch client
+elasticsearch==7.17.9
+
+# Additional dependencies
+numpy==1.23.5  # Use a version compatible with project
+tqdm==4.62.0
+pdfminer.six  # Add pdfminer as mentioned by your colleague
+nltk
+
+# File Converter
+beautifulsoup4

@@ -1,0 +1,18 @@
+# Ignore everything inside the sourcecode directory
+/sourcecode/
+
+# Ignore the cache directory
+/cache/
+
+# Ignore Python cache files
+__pycache__/
+/train/__pycache__/
+
+# Ignore the trained_models folder
+/train/trained_models/
+
+# Ignore the word2vec folder
+/train/word2vec
+
+# Ignore the .vs/ folder
+.vs/

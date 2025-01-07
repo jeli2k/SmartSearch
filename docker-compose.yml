@@ -1,0 +1,36 @@
+version: '3.8'  # Use a newer version to support GPU requests
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    networks:
+      - smartsearch-network
+
+  app:
+    build:
+      context: .  # Ensure Dockerfile is in the current directory
+    container_name: app
+    networks:
+      - smartsearch-network
+    depends_on:
+      - elasticsearch
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]  # Request GPU access
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all  # Optional, use all GPUs
+    runtime: nvidia  # Ensure the NVIDIA runtime is used
+    volumes:
+      - ./cache:/root/.cache  # Persist Hugging Face model cache
+      - .:/app # Mounts the current directory to /app in the container
+
+networks:
+  smartsearch-network:
+    driver: bridge

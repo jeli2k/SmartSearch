@@ -1,0 +1,26 @@
+trigger:
+  paths:
+    include:
+      - '**/*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  ELASTICSEARCH_HOST: 'elasticsearch'
+  ELASTICSEARCH_PORT: '9200'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    python codebase_search.py --index ./sourcecode/ShirtShack-main
+  displayName: 'Run indexing'
