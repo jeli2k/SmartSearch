@@ -12,6 +12,7 @@ numpy==1.23.5  # Use a version compatible with project
 tqdm==4.62.0
 pdfminer.six  # Add pdfminer as mentioned by your colleague
 nltk
+gensim
 
 # File Converter
 beautifulsoup4
