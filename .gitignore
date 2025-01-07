@@ -1,5 +1,8 @@
 # Ignore everything inside the sourcecode directory
-/sourcecode/
+/sourcecode/*
+
+# But don't ignore the sourcecode folder itself
+!/sourcecode/.keep
 
 # Ignore the cache directory
 /cache/
