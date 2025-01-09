@@ -10,7 +10,6 @@ on:
 jobs:
   run-indexing:
     runs-on: ubuntu-latest
-
     services:
       elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
@@ -23,7 +22,7 @@ jobs:
           --health-cmd="curl -f http://localhost:9200/_cat/health"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=20
+          --health-retries=10
 
     steps:
       - name: Check out repository
@@ -44,25 +43,14 @@ jobs:
           mkdir -p /home/runner/nltk_data
           python -c "import nltk; nltk.download('stopwords', download_dir='/home/runner/nltk_data')"
 
-      - name: Wait for Elasticsearch DNS and Port
+      - name: Wait for Elasticsearch on localhost
         run: |
-          # Wait for 'elasticsearch' DNS
           for i in {1..10}; do
-            if nslookup elasticsearch >/dev/null; then
-              echo "DNS for 'elasticsearch' resolved"
+            if curl -s http://127.0.0.1:9200 > /dev/null; then
+              echo "Elasticsearch is up on localhost:9200!"
               break
             fi
-            echo "DNS not available yet, retrying..."
-            sleep 5
-          done
-
-          # Then wait for port 9200 to respond
-          for i in {1..10}; do
-            if curl -s http://elasticsearch:9200 > /dev/null; then
-              echo "Elasticsearch is up!"
-              break
-            fi
-            echo "Waiting for Elasticsearch to respond on port 9200..."
+            echo "Waiting for Elasticsearch to respond..."
             sleep 5
           done
 

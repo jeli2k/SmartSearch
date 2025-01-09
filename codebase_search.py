@@ -26,7 +26,7 @@ except LookupError:
     logger.error("Stopwords set not initialized. Downloading..")
     nltk.download('stopwords')
     
-def initialize_document_store(host="elasticsearch", port=9200, index="codebase_index"):
+def initialize_document_store(host="127.0.0.1", port=9200, index="codebase_index"):
     """Initializes and returns an Elasticsearch document store."""
     return ElasticsearchDocumentStore(host=host, port=port, index=index)
 
