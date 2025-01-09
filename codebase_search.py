@@ -12,7 +12,6 @@ from train.synonyms import synonyms
 import nltk
 from nltk.corpus import stopwords
 from gensim.models import KeyedVectors
-from haystack.utils import wait_for_es
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -29,9 +28,7 @@ except LookupError:
     
 def initialize_document_store(host="elasticsearch", port=9200, index="codebase_index"):
     """Initializes and returns an Elasticsearch document store."""
-    wait_for_es("http://elasticsearch:9200")
     return ElasticsearchDocumentStore(host=host, port=port, index=index)
-
 
 def collect_files(dir_path):
     """Collects file paths from the given directory."""
