@@ -17,14 +17,13 @@ jobs:
         ports:
           - 9200:9200
         env:
-          # Use quotes to ensure correct YAML parsing
           "discovery.type": "single-node"
           "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
         options: >-
           --health-cmd="curl -f http://localhost:9200/_cat/health"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=10
+          --health-retries=20
 
     steps:
       - name: Check out repository
@@ -45,16 +44,25 @@ jobs:
           mkdir -p /home/runner/nltk_data
           python -c "import nltk; nltk.download('stopwords', download_dir='/home/runner/nltk_data')"
 
-      # Optional: Wait for Elasticsearch to become available
-      # (GitHub Actions should wait automatically due to healthchecks, but you can add this if needed)
-      - name: Wait for Elasticsearch
+      - name: Wait for Elasticsearch DNS and Port
         run: |
+          # Wait for 'elasticsearch' DNS
+          for i in {1..10}; do
+            if nslookup elasticsearch >/dev/null; then
+              echo "DNS for 'elasticsearch' resolved"
+              break
+            fi
+            echo "DNS not available yet, retrying..."
+            sleep 5
+          done
+
+          # Then wait for port 9200 to respond
           for i in {1..10}; do
             if curl -s http://elasticsearch:9200 > /dev/null; then
               echo "Elasticsearch is up!"
               break
             fi
-            echo "Waiting for Elasticsearch..."
+            echo "Waiting for Elasticsearch to respond on port 9200..."
             sleep 5
           done
 
@@ -64,10 +72,8 @@ jobs:
         run: |
           python codebase_search.py --index ./sourcecode
 
-      # Optional: Print Elasticsearch logs on failure for debugging
       - name: Print Elasticsearch logs on failure
         if: failure()
         run: |
           echo "Elasticsearch container logs:"
           docker logs $(docker ps --filter "name=elasticsearch" -q)
-
