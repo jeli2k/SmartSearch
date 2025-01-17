@@ -59,9 +59,39 @@ jobs:
           NLTK_DATA: /home/runner/nltk_data
         run: |
           python codebase_search.py --index ./sourcecode
-
+# wenn kein fehler passiert, soll er ein artefakt builden, das artefakt soll man runterladen können um nicht indexen zu müssen / akutellen stand vom index zu haben
+# andere variante: yml datei berarbeiten, trigger der irgendwie lokal im docker container index ausgefügrt werden
       - name: Print Elasticsearch logs on failure
         if: failure()
         run: |
           echo "Elasticsearch container logs:"
           docker logs $(docker ps --filter "name=elasticsearch" -q)
+#NEW STEPS FOR PREINDEXED IMAGE
+
+      - name: Copy ES data to local folder
+        if: success()
+        run: |
+          # Create a local directory
+          mkdir -p es_data
+          # Copy from the ephemeral ES container: /usr/share/elasticsearch/data
+          docker cp $(docker ps --filter "name=elasticsearch" -q):/usr/share/elasticsearch/data es_data
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_TOKEN }}
+          # ^ You must add GHCR_TOKEN in your repo's "Settings -> Secrets" (not hard-coded!)
+      
+      - name: Build and push preindexed ES image
+        if: success()
+        run: |
+          # For GHCR, your image name is typically ghcr.io/<owner>/<repo>/<something>[:tag]
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/smartsearch-es-preindexed:latest"
+
+          echo "Building Docker image with preindexed data..."
+          docker build -t $IMAGE_NAME -f Dockerfile.preindexed .
+
+          echo "Pushing image $IMAGE_NAME to GHCR..."
+          docker push $IMAGE_NAME

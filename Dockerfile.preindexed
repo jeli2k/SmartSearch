@@ -1,0 +1,18 @@
+# Dockerfile.preindexed
+# ---------------------
+
+# 1) Start with the official Elasticsearch image
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.17.9
+
+# 2) Copy in the pre-indexed data folder (we'll create it in GitHub Actions)
+#    so the container has all index files inside /usr/share/elasticsearch/data
+COPY es_data /usr/share/elasticsearch/data
+
+# 3) Set single-node and memory settings so it boots up smoothly
+ENV discovery.type=single-node
+ENV ES_JAVA_OPTS="-Xms512m -Xmx512m"
+
+# 4) Expose port 9200 so users can connect to ES
+EXPOSE 9200
+
+# 5) The default entrypoint from the base ES image will start Elasticsearch
