@@ -1,35 +1,22 @@
+<h1><b>SmartSearch</b> <br> Codebase Indexing and Search using LLMs</h1>
+
+SmartSearch is a advanced tool designed for efficient indexing and searching of large codebases. It combines the power of **semantic** and **keyword-based** searches with **Large Language Models (LLMs)** like **CodeBERT**, enabling developers to extract relevant code snippets quickly and effectively.
 
 
-# Prerequisites
+### **Key Features**
+- **Local Deployment (Secure)**: Deploy locally to maintain full control over sensitive data and ensure a secure environment.
 
-Before starting, make sure your system meets the following requirements:
+- **Model Transparency**: Provides more insight into model decisions, enhancing trust and interpretability.
 
-- **A NVIDIA GPU that supports CUDA.**
-- **Windows 10/11 with WSL 2 enabled.**
-- **NVIDIA Game Ready Driver version 465.89 or higher** (this is the version that supports WSL 2).
+- **Multi-Language Support**: Initially designed for JavaScript, Python, PHP, and Java, with the flexibility to easily extend support for additional languages.
 
-# Add Source Code
+- **FileChunking**: Processes large files into smaller, logical chunks for improved search accuracy and performance.
 
-**Before using the tool, make sure to add a folder named `sourcecode` into the root (`/sourcecode/`) and add your codebase files into this folder.**
+- **Sophisticated Scoring Method**: Ranks search results based on relevance, ensuring precise and useful outcomes.
 
-## Install Docker Desktop:
+<br>
 
-Download and install Docker Desktop for Windows.
-- Ensure you enable the WSL 2 feature in Docker Desktop settings:
-  - Right-click the Docker icon in the system tray and select **Settings**.
-  - Go to **General** and enable the **Use the WSL 2 based engine** option.
-  - In the **Resources** section, ensure that the integration with your installed WSL distributions is enabled.
-
-## Install NVIDIA Drivers:
-- Download and install the latest NVIDIA driver (Game Ready Driver) that supports CUDA from NVIDIA GeForce Experience or the NVIDIA website.
-
-- Make sure that you have a compatible GPU.
-
-Currently, NVIDIA CUDA with WSL 2 + Docker has a bug which blocks GPU access. To fix this, use the most recent Docker Desktop version and make the following changes:
-
-- Inside the `docker-desktop` folder, find the file `/etc/nvidia-container-runtime/config.toml` and change **`no-cgroups`** from `true` to **`false`**.
-
-# After Installing
+# **After Downloading**
 
 1. **Start IDE & open a Terminal**
 2. **Build & Start Docker**
@@ -47,11 +34,11 @@ Currently, NVIDIA CUDA with WSL 2 + Docker has a bug which blocks GPU access. To
    docker-compose run --rm app python3 tests.py
    ```
 
-# Using the Tool
+# **Using the Tool**
 
-After building, create a new terminal window and start indexing & searching.
+Once the tool is built, you can start indexing and searching your codebase with a few simple commands
 
-## Indexing
+# **Indexing**
 
 Make sure to specify the directory to index (`sourcecode` - where the source code files are located).
 
@@ -59,7 +46,7 @@ Make sure to specify the directory to index (`sourcecode` - where the source cod
 docker-compose run --rm app python3 codebase_search.py --index sourcecode
 ```
 
-## Querying
+# **Querying**
 
 ```bash
 docker-compose run --rm app python3 codebase_search.py --search "query"
@@ -67,18 +54,50 @@ docker-compose run --rm app python3 codebase_search.py --search "query"
 
 Examples:
 
-- `"Where is the server name of the database?"`
+- `"Where is the servername of the database?"`
 - `"Where can I find the Coupon class?"`
 - `"Where is the Login happening?"`
 - `"Where are POST and GET requests handled?"`
 
-# Training
+# **Training**
 
-Parameters for training need to be adjusted in `train_model.py` (learning rate, batch size, epochs).
+To train your own model using your custom training data:
+
+1. Update the `train_data.csv` file in the `train` folder with your training dataset, or specify your own file location.  
+2. Adjust parameters such as learning rate, batch size, and epochs in the `train_model.py` file.
 
 ```bash
 docker-compose run --rm app python3 train/train_model.py
 ```
+
+# **Prerequisites**
+
+Before using the tool, make sure your system meets the following requirements:
+
+- **A NVIDIA GPU that supports CUDA.**
+- **Windows 10/11 with WSL 2 enabled.**
+- **NVIDIA Game Ready Driver version 465.89 or higher** (this is the version that supports WSL 2)
+
+# Add Source Code
+
+**Before using the tool, make sure to add a folder named `sourcecode` into the root (`/sourcecode/`) and add your codebase files into this folder.**
+
+## Install Docker Desktop:
+
+Download and install Docker Desktop for Windows.
+- Ensure you enable the WSL 2 feature in Docker Desktop settings:
+  - Right-click the Docker icon in the system tray and select **Settings**.
+  - Go to **General** and enable the **Use the WSL 2 based engine** option.
+  - In the **Resources** section, ensure that the integration with your installed WSL distributions is enabled.
+
+## Install NVIDIA Drivers:
+- Download and install the latest NVIDIA driver (Game Ready Driver) that supports CUDA from NVIDIA GeForce Experience or the NVIDIA website.
+
+- Make sure that you have a compatible GPU
+
+Currently, NVIDIA CUDA with WSL 2 + Docker has a bug which blocks GPU access. To fix this, use the most recent Docker Desktop version and make the following changes:
+
+- Inside the `docker-desktop` folder, find the file `/etc/nvidia-container-runtime/config.toml` and change **`no-cgroups`** from `true` to **`false`**.
 
 ## Hyper-Training (WIP)
 
@@ -88,58 +107,70 @@ Hyper-Training uses 3 different parameters each and several combinations to find
 docker-compose run --rm app python3 train/hyper_train_model.py
 ```
 
-This still needs to be fine-tuned, and is a work in progress.
+This feature still needs to be fine-tuned, and is a work in progress.
 
-# Constraints
+# **Constraints**
 
-**TODO:** No HTML files.
+This tool has been designed to handle **JavaScript**, **PHP**, and **Python** codebases. As such, several constraints are specifically tailored to these programming languages.
 
-# Future Improvements
+## General Constraints
 
-Train/finetune the model to understand/transform all keyword conjugations to the present (e.g. `verified` -> `verify`).
+### **Elasticsearch Integration**
+- All documents are indexed in an Elasticsearch backend, which must be running and accessible.
+- Proper indexing of documents ensures compatibility with semantic retrieval and question-answering pipelines.
 
-# Debugging
+### **Model Support**
+- Uses `CodeBERT` or `RoBERTa` for embedding retrieval and question answering.
+- Requires pre-trained or fine-tuned models, which should be available locally or downloaded online.
 
-To use Python commands in the terminal:
+### **Tokenization and Chunking**
+- Content is split into logical chunks with a limit of **512 tokens** to comply with model constraints (e.g., `CodeBERT` or `RoBERTa`).
 
-```bash
-docker-compose run app /bin/bash
-```
+### **Error Handling**
+- Skips unreadable or inaccessible files and logs errors.
 
-**Postman ElasticSearch checks:**
+### **Scoring Mechanism**
+- Combines:
+  - Semantic retrieval scores.
+  - Exact match scores.
+  - File name relevance.
+- A `synonyms` dictionary is required for query expansion.
 
-- `http://localhost:9200/codebase_index/_count`
-- `http://localhost:9200/codebase_index/_search?q=*&size=10`
+## **File Type Constraints**
 
-**Search specific file:**
+### **Ignored File Types**
+The following file types are not supported and are skipped during indexing:
+- `.DS_Store`, `.bin`, `.exe`, `.dll`, `.so` (system and binary files)
+- `.jpg`, `.png`, `.gif` (image files)
+- `.zip` (compressed archives)
+- `.html` (markup files)
 
-- `http://localhost:9200/codebase_index/_search`
+### **Supported Programming Languages**
+The tool processes source code for:
+- **JavaScript**
+- **Python**
+- **PHP**
+- **Java**
 
-  **Raw query:**
-  ```json
-  {
-    "query": {
-      "wildcard": {
-        "name": "*dbaccess.php*"
-      }
-    },
-    "size": 10
-  }
-  ```
+Adjustments are to be made within `split_into_chunks` function.
 
-- Example command:
+## **Hardware Compatibility**
+- GPU is **recommended** for optimal performance with `torch`-based models.
 
-  ```bash
-  docker-compose run --rm app python3 codebase_search.py --search "How are new users created?"
-  ```
 
-**Cleanup:** If there are any orphan containers or services:
 
-```bash
-docker-compose down --remove-orphans
-```
+# **Future Improvements**
 
-# Troubleshooting CUDA
+1. **Support More Languages**: Add support for C++, Ruby, Go, and other languages  
+2. **Better Chunking**: Improve handling of large or mixed-language files  
+3. **Faster Indexing**: Enable parallel or distributed indexing for large repositories  
+4. **Additional Backends**: Support other storage systems like FAISS or Milvus  
+5. **Smarter Query Expansion**: Use advanced models for more accurate search  
+6. **Improved Scoring**: Enhance result ranking with neural ranking models 
+7. **Custom Synonyms/Stopwords**: Extend the already used synonyms (stopword) lists. 
+8. **Real-Time Updates**: Enable live indexing of new or updated files  
+
+# **Troubleshooting CUDA**
 
 ### Step-by-Step Installation of WSL 2 and NVIDIA Container Toolkit on Windows 10
 
@@ -198,3 +229,43 @@ docker-compose down --remove-orphans
 
 **If you are not using Docker Desktop, use this guide by NVIDIA:** [Configuring Docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuring-docker)
 
+# Debugging
+
+To use Python commands in the terminal:
+
+```bash
+docker-compose run app /bin/bash
+```
+
+**Postman ElasticSearch checks:**
+
+- `http://localhost:9200/codebase_index/_count`
+- `http://localhost:9200/codebase_index/_search?q=*&size=10`
+
+**Search specific file:**
+
+- `http://localhost:9200/codebase_index/_search`
+
+  **Raw query:**
+  ```json
+  {
+    "query": {
+      "wildcard": {
+        "name": "*dbaccess.php*"
+      }
+    },
+    "size": 10
+  }
+  ```
+
+- Example command:
+
+  ```bash
+  docker-compose run --rm app python3 codebase_search.py --search "How are new users created?"
+  ```
+
+**Cleanup:** If there are any orphan containers or services:
+
+```bash
+docker-compose down --remove-orphans
+```
