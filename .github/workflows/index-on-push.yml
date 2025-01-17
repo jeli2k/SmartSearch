@@ -87,11 +87,12 @@ jobs:
       - name: Build and push preindexed ES image
         if: success()
         run: |
-          # For GHCR, your image name is typically ghcr.io/<owner>/<repo>/<something>[:tag]
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/smartsearch-es-preindexed:latest"
-
+          # All lowercase for GHCR
+          IMAGE_NAME="ghcr.io/jeli2k/smartsearch/smartsearch-es-preindexed:latest"
+        
           echo "Building Docker image with preindexed data..."
           docker build -t $IMAGE_NAME -f Dockerfile.preindexed .
-
+        
           echo "Pushing image $IMAGE_NAME to GHCR..."
           docker push $IMAGE_NAME
+        
