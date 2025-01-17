@@ -170,6 +170,42 @@ Adjustments are to be made within `split_into_chunks` function.
 7. **Custom Synonyms/Stopwords**: Extend the already used synonyms (stopword) lists. 
 8. **Real-Time Updates**: Enable live indexing of new or updated files  
 
+# CI/CD: Automated Indexing & Pre-Indexed Docker Image
+
+## Overview
+
+Our goal is to have every commit to the sourcecode/ directory automatically indexed by Elasticsearch, and then make the updated search index available as a Docker image. This way, anyone can run a pre-indexed Elasticsearch container without manually re-running the indexing step.
+
+Here’s how the pipeline works, step by step:
+
+### GitHub Actions Workflow
+        The CI/CD is defined in .github/workflows/index-on-push.yml.
+        It triggers on push to the sourcecode/ folder.
+
+### Ephemeral Elasticsearch
+        The workflow spins up Elasticsearch as a service (version 7.17.9 in our example).
+        We wait for it to become healthy.
+
+### Automated Indexing
+        We run python codebase_search.py --index ./sourcecode to index the newly added or changed source files.
+        That indexing logic uses Haystack to store documents in Elasticsearch.
+
+### Copy Indexed Data
+        After indexing, the ES container now holds a fresh index in /usr/share/elasticsearch/data.
+        We copy that directory onto the GitHub runner using a docker cp command.
+
+### Build a Pre-Indexed Image
+        We have a Dockerfile.preindexed based on docker.elastic.co/elasticsearch/elasticsearch.
+        In the build step, we COPY the es_data folder (which contains the newly indexed documents) into the image’s /usr/share/elasticsearch/data.
+        This means the resulting Docker image has the entire Elasticsearch index baked in.
+
+### Push to GitHub Container Registry (GHCR)
+        We log in to GHCR using a GitHub secret (a Personal Access Token with write:packages scope).
+        We push the newly built image to ghcr.io/<owner>/<repo>/smartsearch-es-preindexed:latest.
+
+If a developer wants to run a code search locally, they just run docker pull on that image, start it, and Elasticsearch is up with the latest docs indexed—no manual steps.
+
+
 # **Troubleshooting CUDA**
 
 ### Step-by-Step Installation of WSL 2 and NVIDIA Container Toolkit on Windows 10
