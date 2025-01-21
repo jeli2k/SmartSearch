@@ -34,6 +34,10 @@ SmartSearch is a advanced tool designed for efficient indexing and searching of 
    docker-compose run --rm app python3 tests.py
    ```
 
+4. **Add Source Code**
+
+   **Before using the tool, make sure to add a folder named `sourcecode` into the root (`/sourcecode/`) and add your codebase files into this folder.**
+
 # **Using the Tool**
 
 Once the tool is built, you can start indexing and searching your codebase with a few simple commands
@@ -77,10 +81,6 @@ Before using the tool, make sure your system meets the following requirements:
 - **A NVIDIA GPU that supports CUDA.**
 - **Windows 10/11 with WSL 2 enabled.**
 - **NVIDIA Game Ready Driver version 465.89 or higher** (this is the version that supports WSL 2)
-
-# Add Source Code
-
-**Before using the tool, make sure to add a folder named `sourcecode` into the root (`/sourcecode/`) and add your codebase files into this folder.**
 
 ## Install Docker Desktop:
 
